@@ -39,26 +39,26 @@ class Groot {
   }
 
   async updateStagingArea(filePath, fileHash) {
-    const index = JSON.parse(await fs.readFile(this.indexPath, { encoding: "utf-8" }));
+    const index = JSON.parse(
+      await fs.readFile(this.indexPath, { encoding: "utf-8" })
+    );
     index.push({ path: filePath, hash: fileHash });
     await fs.writeFile(this.indexPath, JSON.stringify(index));
   }
 
   async commit(message) {
-    // 🔥 FIXED: added await and JSON.parse
-    const index = JSON.parse(await fs.readFile(this.indexPath, { encoding: "utf-8" }));
-
-    // 🔥 FIXED: added await + call method correctly
+    const index = JSON.parse(
+      await fs.readFile(this.indexPath, { encoding: "utf-8" })
+    );
     const parentCommit = await this.getCurrentHead();
 
     const commitData = {
-      timeStamp: new Date().toISOString(), // ✅ FIXED: call toISOString()
+      timeStamp: new Date().toISOString(),
       message,
       files: index,
       parent: parentCommit,
     };
 
-    // 🔥 FIXED: stringify before hashing
     const commitHash = this.hashObject(JSON.stringify(commitData));
     const commitPath = path.join(this.objectsPath, commitHash);
 
@@ -76,12 +76,27 @@ class Groot {
       return null;
     }
   }
+  async log() {
+    let currentCommitHash = await this.getCurrentHead();
+    while (currentCommitHash) {
+      const commitData = JSON.parse(
+        await fs.readFile(path.join(this.objectsPath, currentCommitHash), {
+          encoding: "utf-8",
+        })
+      );
+      console.log("-------------------");
+      console.log(
+        `Commit: ${currentCommitHash}\n Date:${commitData.timeStamp}\n \n ${commitData.message}\n\n`
+      );
+      currentCommitHash = commitData.parent;
+    }
+  }
 }
 
 const groot = new Groot();
 
 (async () => {
-
   await groot.add("sample.txt");
-  await groot.commit("initial commit");
+  await groot.commit("Fourth commit");
+  await groot.log();
 })();
