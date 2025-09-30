@@ -76,6 +76,8 @@ class Groot {
       return null;
     }
   }
+
+
   async log() {
     let currentCommitHash = await this.getCurrentHead();
     while (currentCommitHash) {
@@ -91,6 +93,26 @@ class Groot {
       currentCommitHash = commitData.parent;
     }
   }
+
+  // async getCommitData(commitHash){
+  //   const commitPath = path.join(this.objectsPath,commitHash);
+  //   try{
+  //     return await fs.readFile(commitPath,{encoding:'utf-8'});
+  //   }catch(error){
+  //     console.log("Failed to fetch the commit data");
+  //     return;
+  //   }
+  // }
+
+  // async showCommitDiff(commitHash){
+  //   const commitData = JSON.parse(this.getCommitData(commitHash));
+  //   if(!commitData){
+  //     console.log("Commit Not found");
+  //     return;
+  //   }
+  //   console.log("Changes in the last commit are : ")
+  // }
+  
 }
 
 const groot = new Groot();
